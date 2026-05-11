@@ -7,25 +7,13 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-coverage
 node_modules
 dist
-build
 dist-ssr
-**/dist
-server/dist
-client/dist
 *.local
-.env
-client/.env
-server/.env
-
-# Prisma / SQLite (candidate-generated)
-server/prisma/*.db
-server/prisma/*.db-journal
-server/prisma/*.db-*
 
 # Editor directories and files
+.vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store

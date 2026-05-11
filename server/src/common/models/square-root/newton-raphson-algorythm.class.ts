@@ -6,6 +6,4 @@ import { SqrtAlgorithm } from "./sqrt-algorythm.a-class";
 // 3. Repeat step 2 until the guess is within the tolerance
 // 4. Return the guess
 
-export class NewtonRaphsonAlgorithm extends SqrtAlgorithm {
-  
-}
+export class NewtonRaphsonAlgorithm extends SqrtAlgorithm {}

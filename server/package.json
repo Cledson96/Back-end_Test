@@ -48,7 +48,7 @@
 		"vitest": "3.0.9"
 	},
 	"tsup": {
-		"entry": ["src", "!src/**/__tests__/**", "!src/**/*.test.*"],
+		"entry": ["src", "!src/**/__tests__/**", "!src/**/_spec/**", "!src/**/*.test.*"],
 		"splitting": false,
 		"sourcemap": true,
 		"clean": true

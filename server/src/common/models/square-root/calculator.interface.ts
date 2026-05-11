@@ -1,3 +1,3 @@
 export interface Calculator {
-  calculate(): number;
+	calculate(): number;
 }
