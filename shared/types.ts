@@ -22,3 +22,10 @@ export type SqrtHistoryResponse = {
 export type SqrtClearHistoryResponse = {
 	deletedCount: number;
 };
+
+export type ApiServiceResponse<T> = {
+	success: boolean;
+	message: string;
+	responseObject: T;
+	statusCode: number;
+};
