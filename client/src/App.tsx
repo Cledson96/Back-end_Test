@@ -237,13 +237,23 @@ const requestApi = async <T,>(path: string, options?: RequestInit): Promise<T> =
 		},
 		...options,
 	});
-	const payload = (await response.json()) as ApiServiceResponse<T>;
+	const payload = await readServiceResponse<T>(response);
 
 	if (!response.ok || !payload.success) {
 		throw new Error(payload.message || "Request failed.");
 	}
 
 	return payload.responseObject;
+};
+
+const readServiceResponse = async <T,>(response: Response): Promise<ApiServiceResponse<T>> => {
+	const contentType = response.headers.get("content-type") ?? "";
+
+	if (!contentType.includes("application/json")) {
+		throw new Error(`Request failed with status ${response.status}.`);
+	}
+
+	return (await response.json()) as ApiServiceResponse<T>;
 };
 
 const fetchHistory = (cursor?: string) =>

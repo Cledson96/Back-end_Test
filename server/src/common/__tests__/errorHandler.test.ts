@@ -26,6 +26,12 @@ describe("Error Handler Middleware", () => {
 		it("returns 404 for unknown routes", async () => {
 			const response = await request(app).get("/this-route-does-not-exist");
 			expect(response.status).toBe(StatusCodes.NOT_FOUND);
+			expect(response.body).toMatchObject({
+				success: false,
+				message: "Route not found.",
+				responseObject: null,
+				statusCode: StatusCodes.NOT_FOUND,
+			});
 		});
 	});
 
@@ -33,6 +39,12 @@ describe("Error Handler Middleware", () => {
 		it("handles thrown errors with a 500 status code", async () => {
 			const response = await request(app).get("/error");
 			expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
+			expect(response.body).toMatchObject({
+				success: false,
+				message: "Internal server error.",
+				responseObject: null,
+				statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+			});
 		});
 	});
 
@@ -40,6 +52,12 @@ describe("Error Handler Middleware", () => {
 		it("handles errors passed to next() with a 500 status code", async () => {
 			const response = await request(app).get("/next-error");
 			expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
+			expect(response.body).toMatchObject({
+				success: false,
+				message: "Internal server error.",
+				responseObject: null,
+				statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+			});
 		});
 	});
 });

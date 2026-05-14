@@ -45,6 +45,20 @@ describe("Square root routes", () => {
 		expect(response.body.message).toContain("Input must be greater than or equal to zero.");
 	});
 
+	it("returns a JSON error response for malformed JSON payloads", async () => {
+		const response = await request(app)
+			.post("/square-root/calculate")
+			.set("Content-Type", "application/json")
+			.send('{"input":');
+
+		expect(response.status).toBe(StatusCodes.BAD_REQUEST);
+		expect(response.body).toMatchObject({
+			success: false,
+			responseObject: null,
+			statusCode: StatusCodes.BAD_REQUEST,
+		});
+	});
+
 	it("returns cursor-paginated history", async () => {
 		await request(app).post("/square-root/calculate").send({ input: 4 });
 		await request(app).post("/square-root/calculate").send({ input: 9 });
