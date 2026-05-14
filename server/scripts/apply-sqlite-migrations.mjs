@@ -13,7 +13,7 @@ const applyMigrations = async () => {
 		);
 	`);
 
-	const appliedMigrations = await prisma.$queryRaw<Array<{ id: string }>>`
+	const appliedMigrations = await prisma.$queryRaw`
 		SELECT "id" FROM "_prisma_migrations"
 	`;
 	const appliedMigrationIds = new Set(appliedMigrations.map((migration) => migration.id));

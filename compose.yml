@@ -1,0 +1,15 @@
+services:
+  app:
+    image: ${APP_IMAGE:-ghcr.io/cledson96/back-end-test:latest}
+    build:
+      context: .
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    volumes:
+      - sqlite-data:/data
+
+volumes:
+  sqlite-data:

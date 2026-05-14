@@ -1,3 +1,5 @@
+import path from "node:path";
+
 import cors from "cors";
 import express, { type Express } from "express";
 import helmet from "helmet";
@@ -31,6 +33,13 @@ app.use(requestLogger);
 app.get("/docs/openapi.json", (_req, res) => res.json(openApiDocument));
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApiDocument));
 app.use("/square-root", squareRootRouter);
+
+if (env.NODE_ENV === "production") {
+	const clientBuildPath = path.join(__dirname, "public");
+
+	app.use(express.static(clientBuildPath));
+	app.get("*", (_req, res) => res.sendFile(path.join(clientBuildPath, "index.html")));
+}
 
 // Error handlers
 app.use(errorHandler());
