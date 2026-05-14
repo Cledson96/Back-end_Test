@@ -1,3 +1,6 @@
+import { existsSync } from "node:fs";
+
+import ExcelJS from "exceljs";
 import { StatusCodes } from "http-status-codes";
 import request from "supertest";
 
@@ -7,10 +10,12 @@ import { app } from "@/server";
 describe("Square root routes", () => {
 	beforeEach(async () => {
 		await prisma.calculation.deleteMany();
+		await prisma.importFile.deleteMany();
 	});
 
 	afterAll(async () => {
 		await prisma.calculation.deleteMany();
+		await prisma.importFile.deleteMany();
 		await prisma.$disconnect();
 	});
 
@@ -92,4 +97,140 @@ describe("Square root routes", () => {
 		expect(deleteResponse.body.responseObject).toEqual({ deletedCount: 2 });
 		expect(historyResponse.body.responseObject.items).toHaveLength(0);
 	});
+
+	it("imports valid spreadsheet rows and reports invalid rows", async () => {
+		const workbook = await createWorkbookBuffer([["input"], [9], [-4], ["abc"], [16]]);
+
+		const response = await request(app).post("/square-root/history/import").attach("file", workbook, "inputs.xlsx");
+		const historyResponse = await request(app).get("/square-root/history").query({ limit: 10 });
+
+		expect(response.status).toBe(StatusCodes.CREATED);
+		expect(response.body.responseObject).toMatchObject({
+			fileName: "inputs.xlsx",
+			totalRows: 4,
+			createdCount: 2,
+			failedCount: 2,
+		});
+		expect(response.body.responseObject.errors).toEqual([
+			expect.objectContaining({ rowNumber: 3 }),
+			expect.objectContaining({ rowNumber: 4 }),
+		]);
+		expect(response.body.responseObject.items.map((item: { input: number }) => item.input)).toEqual([9, 16]);
+		expect(historyResponse.body.responseObject.items[0]).toMatchObject({
+			input: 16,
+			sourceFileName: "inputs.xlsx",
+			sourceRowNumber: 5,
+		});
+	});
+
+	it("rejects spreadsheets with no valid rows", async () => {
+		const workbook = await createWorkbookBuffer([["input"], [-4], ["abc"]]);
+
+		const response = await request(app).post("/square-root/history/import").attach("file", workbook, "invalid.xlsx");
+		const persistedCalculations = await prisma.calculation.findMany();
+		const persistedImportFiles = await prisma.importFile.findMany();
+
+		expect(response.status).toBe(StatusCodes.BAD_REQUEST);
+		expect(response.body.responseObject).toMatchObject({
+			fileName: "invalid.xlsx",
+			totalRows: 2,
+			createdCount: 0,
+			failedCount: 2,
+		});
+		expect(persistedCalculations).toHaveLength(0);
+		expect(persistedImportFiles).toHaveLength(0);
+	});
+
+	it("rejects spreadsheets with more than one thousand rows", async () => {
+		const rows = [["input"], ...Array.from({ length: 1001 }, (_value, index) => [index + 1])];
+		const workbook = await createWorkbookBuffer(rows);
+
+		const response = await request(app)
+			.post("/square-root/history/import")
+			.attach("file", workbook, "too-many-rows.xlsx");
+
+		expect(response.status).toBe(StatusCodes.BAD_REQUEST);
+		expect(response.body.message).toContain("at most 1000 data rows");
+	});
+
+	it("rejects spreadsheets without an input column", async () => {
+		const workbook = await createWorkbookBuffer([["number"], [9]]);
+
+		const response = await request(app)
+			.post("/square-root/history/import")
+			.attach("file", workbook, "missing-input.xlsx");
+
+		expect(response.status).toBe(StatusCodes.BAD_REQUEST);
+		expect(response.body.message).toContain('"input" column');
+	});
+
+	it("exports calculation history as an Excel workbook", async () => {
+		await request(app).post("/square-root/calculate").send({ input: 25 });
+
+		const response = await request(app).get("/square-root/history/export").buffer(true).parse(binaryParser);
+		const workbook = new ExcelJS.Workbook();
+		await workbook.xlsx.load(response.body);
+		const worksheet = workbook.getWorksheet("Calculations");
+
+		expect(response.status).toBe(StatusCodes.OK);
+		expect(response.headers["content-type"]).toContain(
+			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+		);
+		expect(worksheet?.getRow(1).values).toEqual([undefined, "Input", "Result", "Created At", "Source", "Source Row"]);
+		expect(worksheet?.getRow(2).getCell(1).value).toBe(25);
+		expect(worksheet?.getRow(2).getCell(2).value).toBeCloseTo(5, 7);
+	});
+
+	it("downloads the original imported spreadsheet", async () => {
+		const workbook = await createWorkbookBuffer([["input"], [81]]);
+		const importResponse = await request(app)
+			.post("/square-root/history/import")
+			.attach("file", workbook, "download-me.xlsx");
+
+		const response = await request(app)
+			.get(`/square-root/imports/${importResponse.body.responseObject.importId}/download`)
+			.buffer(true)
+			.parse(binaryParser);
+
+		expect(response.status).toBe(StatusCodes.OK);
+		expect(response.headers["content-disposition"]).toContain("download-me.xlsx");
+		expect(response.body.length).toBeGreaterThan(0);
+	});
+
+	it("clears imported file metadata and stored spreadsheets with history", async () => {
+		const workbook = await createWorkbookBuffer([["input"], [100]]);
+		await request(app).post("/square-root/history/import").attach("file", workbook, "clear-me.xlsx");
+		const importFile = await prisma.importFile.findFirstOrThrow();
+
+		const response = await request(app).delete("/square-root/history");
+		const persistedImportFiles = await prisma.importFile.findMany();
+
+		expect(response.status).toBe(StatusCodes.OK);
+		expect(response.body.responseObject.deletedCount).toBe(1);
+		expect(persistedImportFiles).toHaveLength(0);
+		expect(existsSync(importFile.storagePath)).toBe(false);
+	});
 });
+
+const createWorkbookBuffer = async (rows: Array<Array<string | number>>) => {
+	const workbook = new ExcelJS.Workbook();
+	const worksheet = workbook.addWorksheet("Inputs");
+
+	for (const row of rows) {
+		worksheet.addRow(row);
+	}
+
+	const buffer = await workbook.xlsx.writeBuffer();
+
+	return Buffer.from(buffer);
+};
+
+const binaryParser = (response: request.Response, callback: (error: Error | null, body: Buffer) => void) => {
+	let data = "";
+
+	response.setEncoding("binary");
+	response.on("data", (chunk: string) => {
+		data += chunk;
+	});
+	response.on("end", () => callback(null, Buffer.from(data, "binary")));
+};

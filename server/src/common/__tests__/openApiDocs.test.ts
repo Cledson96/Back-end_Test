@@ -16,6 +16,9 @@ describe("OpenAPI documentation", () => {
 			paths: {
 				"/square-root/calculate": expect.any(Object),
 				"/square-root/history": expect.any(Object),
+				"/square-root/history/export": expect.any(Object),
+				"/square-root/history/import": expect.any(Object),
+				"/square-root/imports/{id}/download": expect.any(Object),
 			},
 		});
 	});

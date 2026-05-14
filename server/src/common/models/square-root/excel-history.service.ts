@@ -59,7 +59,7 @@ export class ExcelHistoryService {
 
 	async buildHistoryWorkbook(calculations: SqrtCalculationResponse[]): Promise<Buffer> {
 		const workbook = new ExcelJS.Workbook();
-		const worksheet = workbook.addWorksheet("History");
+		const worksheet = workbook.addWorksheet("Calculations");
 
 		worksheet.columns = [
 			{ header: "Input", key: "input", width: 18 },
