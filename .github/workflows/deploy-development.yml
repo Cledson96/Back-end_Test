@@ -101,7 +101,11 @@ jobs:
             COMMON_RATE_LIMIT_WINDOW_MS=1000
             COMMON_RATE_LIMIT_MAX_REQUESTS=100
             ENV
-            docker compose --env-file .env.production pull
+            if ! docker compose --env-file .env.production pull; then
+              docker system prune -af || true
+              docker builder prune -af || true
+              docker compose --env-file .env.production pull
+            fi
             docker compose --env-file .env.production run --rm app node scripts/apply-sqlite-migrations.mjs
             docker compose --env-file .env.production up -d --remove-orphans
             docker image prune -f
