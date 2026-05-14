@@ -45,6 +45,12 @@ jobs:
       - name: Build client
         run: cd client && pnpm build
 
+      - name: API smoke and stress test
+        uses: ./.github/actions/api-smoke-stress
+        with:
+          concurrency: "15"
+          total-requests: "75"
+
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 

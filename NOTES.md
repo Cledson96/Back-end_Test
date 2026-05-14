@@ -28,6 +28,10 @@
 - Docker e GitHub Actions para deploy em VPS:
   - `development` publica imagem `ghcr.io/cledson96/back-end-test:development` e usa `sqrt-dev.cledson.com.br`.
   - `main` publica imagem `ghcr.io/cledson96/back-end-test:latest` e usa `sqrt.cledson.com.br`.
+- O GitHub Actions tambem executa smoke test e stress test da API antes do deploy:
+  - sobe o build do servidor em modo producao dentro do runner;
+  - valida Swagger, calculo, historico e limpeza de historico;
+  - executa requisicoes concorrentes e publica total, sucesso, falhas, latencia media, p95 e requisicoes por segundo no resumo do Actions.
 
 ## Melhorias futuras
 

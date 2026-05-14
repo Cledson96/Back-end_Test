@@ -40,6 +40,19 @@ jobs:
       - name: Test server
         run: cd server && pnpm test
 
+  api-smoke-stress:
+    name: API Smoke and Stress Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: ./.github/actions/setup-pnpm
+      - name: Build server
+        run: cd server && pnpm build
+      - uses: ./.github/actions/api-smoke-stress
+        with:
+          concurrency: "10"
+          total-requests: "50"
+
   client-build:
     name: Client Build
     runs-on: ubuntu-latest

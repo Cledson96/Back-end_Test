@@ -1,0 +1,73 @@
+name: "API smoke and stress test"
+description: "Starts the built API and runs smoke and stress tests against it"
+
+inputs:
+  concurrency:
+    description: "Number of concurrent stress-test workers"
+    default: "10"
+    required: false
+  port:
+    description: "Local API port used during the test"
+    default: "8090"
+    required: false
+  total-requests:
+    description: "Total stress-test requests"
+    default: "50"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Prepare SQLite database
+      shell: bash
+      working-directory: server
+      env:
+        DATABASE_URL: file:./prisma/action-test.db
+      run: |
+        set -euo pipefail
+        rm -f prisma/dev.db prisma/dev.db-* prisma/action-test.db prisma/action-test.db-*
+        pnpm db:apply
+
+    - name: Run API smoke and stress test
+      shell: bash
+      working-directory: server
+      env:
+        API_BASE_URL: http://127.0.0.1:${{ inputs.port }}
+        COMMON_RATE_LIMIT_MAX_REQUESTS: "1000"
+        COMMON_RATE_LIMIT_WINDOW_MS: "1000"
+        CONCURRENCY: ${{ inputs.concurrency }}
+        CORS_ORIGIN: http://127.0.0.1:${{ inputs.port }}
+        DATABASE_URL: file:./prisma/action-test.db
+        HOST: 127.0.0.1
+        NODE_ENV: production
+        PORT: ${{ inputs.port }}
+        STRESS_CONCURRENCY: ${{ inputs.concurrency }}
+        STRESS_TOTAL_REQUESTS: ${{ inputs.total-requests }}
+      run: |
+        set -euo pipefail
+        node dist/index.js > api-smoke-stress.log 2>&1 &
+        API_PID=$!
+
+        cleanup() {
+          kill "$API_PID" 2>/dev/null || true
+          wait "$API_PID" 2>/dev/null || true
+        }
+
+        trap cleanup EXIT
+
+        set +e
+        node scripts/api-smoke-and-stress-test.mjs
+        STATUS=$?
+        set -e
+
+        if [ "$STATUS" -ne 0 ]; then
+          {
+            echo
+            echo "### API server log tail"
+            echo '```'
+            tail -n 80 api-smoke-stress.log || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+        exit "$STATUS"

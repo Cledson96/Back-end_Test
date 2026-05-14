@@ -4,7 +4,7 @@
 	"files": {
 		"ignoreUnknown": false,
 		"ignore": ["dist"],
-		"include": ["src/**", "../shared/**"]
+		"include": ["src/**", "scripts/**", "../shared/**"]
 	},
 	"formatter": {
 		"enabled": true,
