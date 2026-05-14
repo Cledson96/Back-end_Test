@@ -2,11 +2,13 @@ import cors from "cors";
 import express, { type Express } from "express";
 import helmet from "helmet";
 import { pino } from "pino";
+import swaggerUi from "swagger-ui-express";
 
 import errorHandler from "@/common/middleware/errorHandler";
 import rateLimiter from "@/common/middleware/rateLimiter";
 import requestLogger from "@/common/middleware/requestLogger";
 import squareRootRouter from "@/common/models/square-root/square-root.router";
+import { openApiDocument } from "@/common/openapi";
 import { env } from "@/common/utils/envConfig";
 
 const logger = pino({ name: "server start" });
@@ -26,6 +28,8 @@ app.use(rateLimiter);
 app.use(requestLogger);
 
 // Routes
+app.get("/docs/openapi.json", (_req, res) => res.json(openApiDocument));
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApiDocument));
 app.use("/square-root", squareRootRouter);
 
 // Error handlers
