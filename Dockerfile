@@ -28,6 +28,7 @@ ENV NODE_ENV="production"
 ENV HOST="0.0.0.0"
 ENV PORT="8080"
 ENV DATABASE_URL="file:/data/prod.db"
+ENV UPLOAD_DIR="/data/uploads"
 ENV CORS_ORIGIN="https://sqrt.cledson.com.br"
 ENV COMMON_RATE_LIMIT_WINDOW_MS="1000"
 ENV COMMON_RATE_LIMIT_MAX_REQUESTS="100"
@@ -40,7 +41,7 @@ COPY --from=build /app/server/package.json ./package.json
 COPY --from=build /app/server/prisma ./prisma
 COPY --from=build /app/server/scripts ./scripts
 
-RUN mkdir -p /data
+RUN mkdir -p /data/uploads
 
 EXPOSE 8080
 

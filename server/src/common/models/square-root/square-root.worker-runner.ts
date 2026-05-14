@@ -2,15 +2,27 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { Worker } from "node:worker_threads";
 
-type WorkerSuccessMessage = number;
+type WorkerSuccessMessage = number | number[];
 
 export const calculateSquareRootInWorker = (input: number): Promise<number> => {
+	return runSquareRootWorker({ input }) as Promise<number>;
+};
+
+export const calculateSquareRootsInWorker = (inputs: number[]): Promise<number[]> => {
+	if (inputs.length === 0) {
+		return Promise.resolve([]);
+	}
+
+	return runSquareRootWorker({ inputs }) as Promise<number[]>;
+};
+
+const runSquareRootWorker = (workerData: { input?: number; inputs?: number[] }): Promise<WorkerSuccessMessage> => {
 	const workerPath = resolveSquareRootWorkerPath();
 
 	return new Promise((resolve, reject) => {
 		const worker = new Worker(workerPath, {
 			execArgv: workerPath.endsWith(".ts") ? ["--require", "tsx/cjs"] : [],
-			workerData: { input },
+			workerData,
 		});
 
 		worker.once("message", (result: WorkerSuccessMessage) => {

@@ -19,6 +19,9 @@ const calculationResponseSchema = registry.register(
 		input: z.number().openapi({ example: 9 }),
 		result: z.number().openapi({ example: 3 }),
 		createdAt: z.string().datetime().openapi({ example: "2026-05-14T02:00:00.000Z" }),
+		sourceFileId: z.string().optional().openapi({ example: "clwimport000000abc123" }),
+		sourceFileName: z.string().optional().openapi({ example: "inputs.xlsx" }),
+		sourceRowNumber: z.number().int().optional().openapi({ example: 2 }),
 	}),
 );
 
@@ -34,6 +37,28 @@ const clearHistoryResponseSchema = registry.register(
 	"SqrtClearHistoryResponse",
 	z.object({
 		deletedCount: z.number().int().openapi({ example: 3 }),
+	}),
+);
+
+const importRowErrorSchema = registry.register(
+	"SqrtImportRowError",
+	z.object({
+		rowNumber: z.number().int().openapi({ example: 4 }),
+		message: z.string().openapi({ example: "Input must be a finite number greater than or equal to zero." }),
+		value: z.string().optional().openapi({ example: "-9" }),
+	}),
+);
+
+const importHistoryResponseSchema = registry.register(
+	"SqrtHistoryImportResponse",
+	z.object({
+		importId: z.string().openapi({ example: "clwimport000000abc123" }),
+		fileName: z.string().openapi({ example: "inputs.xlsx" }),
+		totalRows: z.number().int().openapi({ example: 5 }),
+		createdCount: z.number().int().openapi({ example: 4 }),
+		failedCount: z.number().int().openapi({ example: 1 }),
+		errors: z.array(importRowErrorSchema),
+		items: z.array(calculationResponseSchema),
 	}),
 );
 
@@ -53,6 +78,10 @@ const historyServiceResponseSchema = serviceResponse("SqrtHistoryServiceResponse
 const clearHistoryServiceResponseSchema = serviceResponse(
 	"SqrtClearHistoryServiceResponse",
 	clearHistoryResponseSchema,
+);
+const importHistoryServiceResponseSchema = serviceResponse(
+	"SqrtHistoryImportServiceResponse",
+	importHistoryResponseSchema,
 );
 
 registry.registerPath({
@@ -101,6 +130,76 @@ registry.registerPath({
 					schema: historyServiceResponseSchema,
 				},
 			},
+		},
+	},
+});
+
+registry.registerPath({
+	method: "get",
+	path: "/square-root/history/export",
+	summary: "Export calculation history to Excel",
+	responses: {
+		200: {
+			description: "Excel workbook generated successfully.",
+			content: {
+				"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+					schema: z.string().openapi({ format: "binary" }),
+				},
+			},
+		},
+	},
+});
+
+registry.registerPath({
+	method: "post",
+	path: "/square-root/history/import",
+	summary: "Import square-root inputs from an Excel spreadsheet",
+	request: {
+		body: {
+			content: {
+				"multipart/form-data": {
+					schema: z.object({
+						file: z.string().openapi({ format: "binary" }),
+					}),
+				},
+			},
+		},
+	},
+	responses: {
+		201: {
+			description: "Spreadsheet imported with at least one valid row.",
+			content: {
+				"application/json": {
+					schema: importHistoryServiceResponseSchema,
+				},
+			},
+		},
+		400: {
+			description: "Spreadsheet is invalid or contains no valid rows.",
+		},
+	},
+});
+
+registry.registerPath({
+	method: "get",
+	path: "/square-root/imports/{id}/download",
+	summary: "Download the original uploaded spreadsheet",
+	request: {
+		params: z.object({
+			id: z.string().openapi({ example: "clwimport000000abc123" }),
+		}),
+	},
+	responses: {
+		200: {
+			description: "Original spreadsheet downloaded successfully.",
+			content: {
+				"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+					schema: z.string().openapi({ format: "binary" }),
+				},
+			},
+		},
+		404: {
+			description: "Import file was not found.",
 		},
 	},
 });

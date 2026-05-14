@@ -96,6 +96,7 @@ jobs:
             HOST=0.0.0.0
             PORT=8080
             DATABASE_URL=file:/data/prod.db
+            UPLOAD_DIR=/data/uploads
             CORS_ORIGIN=https://sqrt.cledson.com.br
             COMMON_RATE_LIMIT_WINDOW_MS=1000
             COMMON_RATE_LIMIT_MAX_REQUESTS=100

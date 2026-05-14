@@ -24,5 +24,12 @@ export const squareRootHistoryRequestSchema = z.object({
 	}),
 });
 
+export const squareRootImportDownloadRequestSchema = z.object({
+	params: z.object({
+		id: z.string().min(1, "Import id is required."),
+	}),
+});
+
 export const calculateSquareRootBodySchema = calculateSquareRootRequestSchema.shape.body;
 export const squareRootHistoryQuerySchema = squareRootHistoryRequestSchema.shape.query;
+export const squareRootImportDownloadParamsSchema = squareRootImportDownloadRequestSchema.shape.params;

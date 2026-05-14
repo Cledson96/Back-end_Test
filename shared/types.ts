@@ -12,6 +12,9 @@ export type SqrtCalculationResponse = {
 	input: number;
 	result: number;
 	createdAt: string;
+	sourceFileId?: string;
+	sourceFileName?: string;
+	sourceRowNumber?: number;
 };
 
 export type SqrtHistoryResponse = {
@@ -21,6 +24,22 @@ export type SqrtHistoryResponse = {
 
 export type SqrtClearHistoryResponse = {
 	deletedCount: number;
+};
+
+export type SqrtImportRowError = {
+	rowNumber: number;
+	message: string;
+	value?: string;
+};
+
+export type SqrtHistoryImportResponse = {
+	importId: string;
+	fileName: string;
+	totalRows: number;
+	createdCount: number;
+	failedCount: number;
+	errors: SqrtImportRowError[];
+	items: SqrtCalculationResponse[];
 };
 
 export type ApiServiceResponse<T> = {
