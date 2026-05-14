@@ -25,6 +25,7 @@ server/generated
 server/prisma/*.db
 server/prisma/*.db-journal
 server/prisma/*.db-*
+server/uploads
 
 # Editor directories and files
 !.vscode/extensions.json

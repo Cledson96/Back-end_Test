@@ -8,10 +8,28 @@ datasource db {
 }
 
 model Calculation {
-  id        String   @id @default(cuid())
-  input     Float
-  result    Float
-  createdAt DateTime @default(now())
+  id              String      @id @default(cuid())
+  input           Float
+  result          Float
+  createdAt       DateTime    @default(now())
+  importFileId    String?
+  sourceRowNumber Int?
+  importFile      ImportFile? @relation(fields: [importFileId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt, id])
+  @@index([importFileId])
+}
+
+model ImportFile {
+  id           String        @id @default(cuid())
+  originalName String
+  storedName   String
+  storagePath  String
+  mimeType     String
+  sizeBytes    Int
+  rowCount     Int
+  createdAt    DateTime      @default(now())
+  calculations Calculation[]
 
   @@index([createdAt, id])
 }
