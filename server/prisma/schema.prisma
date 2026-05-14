@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Calculation {
+  id        String   @id @default(cuid())
+  input     Float
+  result    Float
+  createdAt DateTime @default(now())
+
+  @@index([createdAt, id])
+}

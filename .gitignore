@@ -21,6 +21,7 @@ client/.env
 server/.env
 
 # Prisma / SQLite (candidate-generated)
+server/generated
 server/prisma/*.db
 server/prisma/*.db-journal
 server/prisma/*.db-*
