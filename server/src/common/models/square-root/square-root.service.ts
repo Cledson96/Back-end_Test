@@ -1,8 +1,4 @@
-import type {
-	SqrtCalculationResponse,
-	SqrtClearHistoryResponse,
-	SqrtHistoryResponse,
-} from "@shared/types";
+import type { SqrtCalculationResponse, SqrtClearHistoryResponse, SqrtHistoryResponse } from "@shared/types";
 
 import { CalculationRepository } from "./calculation.repository";
 import { calculateSquareRootInWorker } from "./square-root.worker-runner";

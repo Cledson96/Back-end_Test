@@ -1,8 +1,4 @@
-import {
-	OpenAPIRegistry,
-	OpenApiGeneratorV3,
-	extendZodWithOpenApi,
-} from "@asteasolutions/zod-to-openapi";
+import { OpenAPIRegistry, OpenApiGeneratorV3, extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
 
 extendZodWithOpenApi(z);
@@ -52,10 +48,7 @@ const serviceResponse = <T extends z.ZodTypeAny>(name: string, responseObjectSch
 		}),
 	);
 
-const calculationServiceResponseSchema = serviceResponse(
-	"SqrtCalculationServiceResponse",
-	calculationResponseSchema,
-);
+const calculationServiceResponseSchema = serviceResponse("SqrtCalculationServiceResponse", calculationResponseSchema);
 const historyServiceResponseSchema = serviceResponse("SqrtHistoryServiceResponse", historyResponseSchema);
 const clearHistoryServiceResponseSchema = serviceResponse(
 	"SqrtClearHistoryServiceResponse",

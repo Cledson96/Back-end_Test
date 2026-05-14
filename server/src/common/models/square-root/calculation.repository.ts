@@ -1,5 +1,5 @@
-import type { SqrtCalculationResponse, SqrtHistoryResponse } from "@shared/types";
 import type { PrismaClient } from "@prisma/client";
+import type { SqrtCalculationResponse, SqrtHistoryResponse } from "@shared/types";
 
 import { prisma } from "@/common/database/prisma";
 

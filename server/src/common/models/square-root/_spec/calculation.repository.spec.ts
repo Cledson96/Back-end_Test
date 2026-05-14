@@ -35,10 +35,7 @@ describe("CalculationRepository", () => {
 		const secondPage = await repository.findMany({ limit: 2, cursor: firstPage.nextCursor });
 
 		expect(firstPage).toEqual({
-			items: [
-				expect.objectContaining({ id: third.id }),
-				expect.objectContaining({ id: second.id }),
-			],
+			items: [expect.objectContaining({ id: third.id }), expect.objectContaining({ id: second.id })],
 			nextCursor: second.id,
 		});
 		expect(secondPage).toEqual({
