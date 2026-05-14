@@ -18,3 +18,7 @@ export type SqrtHistoryResponse = {
 	items: SqrtCalculationResponse[];
 	nextCursor?: string;
 };
+
+export type SqrtClearHistoryResponse = {
+	deletedCount: number;
+};

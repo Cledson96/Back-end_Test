@@ -6,6 +6,7 @@ import { pino } from "pino";
 import errorHandler from "@/common/middleware/errorHandler";
 import rateLimiter from "@/common/middleware/rateLimiter";
 import requestLogger from "@/common/middleware/requestLogger";
+import squareRootRouter from "@/common/models/square-root/square-root.router";
 import { env } from "@/common/utils/envConfig";
 
 const logger = pino({ name: "server start" });
@@ -25,7 +26,7 @@ app.use(rateLimiter);
 app.use(requestLogger);
 
 // Routes
-// Add routes here...
+app.use("/square-root", squareRootRouter);
 
 // Error handlers
 app.use(errorHandler());
