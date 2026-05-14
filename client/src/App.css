@@ -20,7 +20,8 @@
 
 .panel-heading,
 .section-heading,
-.history-actions {
+.history-actions,
+.header-actions {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -146,9 +147,45 @@ button:disabled {
 	text-align: center;
 }
 
+.spreadsheet-tools {
+	margin-top: 1.25rem;
+	padding-top: 1.25rem;
+	border-top: 1px solid #e2e8f0;
+}
+
+.spreadsheet-tools h2 {
+	margin-bottom: 0.8rem;
+}
+
+.import-form {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 0.75rem;
+}
+
+.import-summary {
+	display: grid;
+	gap: 0.4rem;
+	margin-top: 0.8rem;
+	padding: 0.9rem;
+	border: 1px solid #c8d1dc;
+	border-radius: 8px;
+	background: #f8fafc;
+}
+
+.import-summary ul {
+	margin: 0.25rem 0 0;
+	padding-left: 1.1rem;
+	color: #6b3f00;
+}
+
 .history-section {
 	margin-top: 1.25rem;
 	padding: 1.25rem;
+}
+
+.header-actions {
+	justify-content: flex-end;
 }
 
 .table-shell {
@@ -192,6 +229,21 @@ tr:last-child td {
 	margin-top: 1rem;
 }
 
+.page-indicator {
+	color: #455568;
+	font-weight: 700;
+}
+
+.source-link {
+	color: #254edb;
+	font-weight: 700;
+	text-decoration: none;
+}
+
+.source-link:hover {
+	text-decoration: underline;
+}
+
 @media (max-width: 680px) {
 	.app {
 		width: min(100% - 1rem, 68rem);
@@ -206,12 +258,14 @@ tr:last-child td {
 	.panel-heading,
 	.section-heading,
 	.history-actions,
+	.header-actions,
 	.result-band {
 		align-items: stretch;
 		flex-direction: column;
 	}
 
-	.input-row {
+	.input-row,
+	.import-form {
 		grid-template-columns: 1fr;
 	}
 
