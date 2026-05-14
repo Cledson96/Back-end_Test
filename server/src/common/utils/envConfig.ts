@@ -8,7 +8,7 @@ export const env = cleanEnv(process.env, {
 	HOST: host({ devDefault: testOnly("localhost") }),
 	PORT: port({ devDefault: testOnly(3000) }),
 	CORS_ORIGIN: str({ devDefault: testOnly("http://localhost:3000") }),
-	UPLOAD_DIR: str({ default: "/data/uploads", devDefault: testOnly("server/uploads") }),
+	UPLOAD_DIR: str({ default: "/data/uploads", devDefault: testOnly("uploads") }),
 	COMMON_RATE_LIMIT_MAX_REQUESTS: num({ devDefault: testOnly(1000) }),
 	COMMON_RATE_LIMIT_WINDOW_MS: num({ devDefault: testOnly(1000) }),
 });

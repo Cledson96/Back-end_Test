@@ -25,6 +25,15 @@
 - Cache em memoria para reutilizar resultados de inputs repetidos durante a vida do processo.
 - Swagger/OpenAPI disponivel em `/docs` e JSON em `/docs/openapi.json`.
 - UI com optimistic clear, atualizacao imediata do historico apos calculo, estados de loading e tratamento de erro.
+- Importacao Excel como extra:
+  - endpoint `POST /square-root/history/import` recebe `.xlsx` com coluna `input`;
+  - a planilha aceita ate 1000 linhas de dados;
+  - linhas validas sao calculadas e salvas no historico;
+  - linhas invalidas nao bloqueiam as validas e voltam no resumo com numero da linha e motivo;
+  - o calculo em lote tambem usa `worker_threads`, evitando bloquear a thread principal;
+  - o arquivo original fica salvo em `UPLOAD_DIR` e pode ser baixado por `/square-root/imports/:id/download`.
+- Exportacao Excel em `GET /square-root/history/export`, gerando uma planilha com `Input`, `Result`, `Created At`, `Source` e `Source Row`.
+- A tabela do frontend agora usa paginacao visual com `Previous`, `Next`, `Refresh` e indicador de pagina.
 - Docker e GitHub Actions para deploy em VPS:
   - `development` publica imagem `ghcr.io/cledson96/back-end-test:development` e usa `sqrt-dev.cledson.com.br`.
   - `main` publica imagem `ghcr.io/cledson96/back-end-test:latest` e usa `sqrt.cledson.com.br`.
